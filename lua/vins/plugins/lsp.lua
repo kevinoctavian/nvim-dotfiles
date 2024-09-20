@@ -52,6 +52,8 @@ return {
           "pylint", -- python linter
           "eslint_d", -- js linter
           "clang-format",
+          -- Debugger area
+          "codelldb",
         },
       })
     end,
@@ -120,14 +122,11 @@ return {
           opts.desc = "Show documentation for what is under cursor"
           keymap.set("n", "<leader>h", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
 
+          opts.desc = "Show dynamic workspace symbols"
           keymap.set("n", "<leader>t", "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>", opts)
 
           opts.desc = "Restart LSP"
           keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
-
-          vim.keymap.set("n", "<space>f", function()
-            vim.lsp.buf.format({ async = true })
-          end, opts)
         end,
       })
 
@@ -139,11 +138,11 @@ return {
         has_cmp and cmp_nvim_lsp.default_capabilities() or {},
         {
           workspace = {
-          fileOperations = {
-            didRename = true,
-            willRename = true,
+            fileOperations = {
+              didRename = true,
+              willRename = true,
+            },
           },
-        },
         }
       )
 
@@ -160,6 +159,27 @@ return {
         function(server_name)
           lspconfig[server_name].setup({
             capabilities = capabilities,
+          })
+        end,
+        ["clangd"] = function()
+          lspconfig.clangd.setup({
+            capabilities = capabilities,
+            cmd = {
+              vim.fn.stdpath("data") .. "/mason/bin/clangd",
+              "--background-index",
+              "--cross-file-rename",
+              "--header-insertion=never",
+            },
+            filetypes = { "c", "cpp", "h", "hpp", "objc" },
+            rootPatterns = { ".git", "compile_flags.txt", "compile_commands.json" },
+            handlers = {
+              ["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+                virtual_text = true,
+                signs = true,
+                underline = true,
+                update_in_insert = false,
+              }),
+            },
           })
         end,
         ["emmet_ls"] = function()
@@ -188,11 +208,22 @@ return {
                 completion = {
                   callSnippet = "Replace",
                 },
+                workspace = {
+                  checkThirdParty = false,
+                  library = {
+                    vim.env.VIMRUNTIME,
+                    -- Depending on the usage, you might want to add additional paths here.
+                    -- "${3rd}/luv/library"
+                    -- "${3rd}/busted/library",
+                  },
+                  -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
+                  -- library = vim.api.nvim_get_runtime_file("", true)
+                },
               },
             },
           })
         end,
       })
     end,
-  }
+  },
 }

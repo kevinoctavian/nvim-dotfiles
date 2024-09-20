@@ -26,6 +26,7 @@ return {
         disabled_filetypes = {
           statusline = {},
           winbar = {},
+          "alpha",
         },
         ignore_focus = {},
         always_divide_middle = true,
@@ -41,6 +42,14 @@ return {
         lualine_b = { "branch", "diff", "diagnostics" },
         lualine_c = {
           "filename",
+          function()
+            local cmake = require("cmake-tools")
+            if cmake.is_cmake_project() then
+              return require("cmake-tools").get_build_type()
+            else
+              return ""
+            end
+          end,
           function()
             local reg = vim.fn.reg_recording()
             if reg == "" then
@@ -127,11 +136,41 @@ return {
       },
       -- you can enable a preset for easier configuration
       presets = {
-        bottom_search = true, -- use a classic bottom cmdline for search
-        command_palette = true, -- position the cmdline and popupmenu together
+        bottom_search = false, -- use a classic bottom cmdline for search
+        command_palette = false, -- position the cmdline and popupmenu together
         long_message_to_split = true, -- long messages will be sent to a split
         inc_rename = false, -- enables an input dialog for inc-rename.nvim
         lsp_doc_border = false, -- add a border to hover docs and signature help
+      },
+      views = {
+        cmdline_popup = {
+          position = {
+            row = 5,
+            col = "50%",
+          },
+          size = {
+            width = 60,
+            height = "auto",
+          },
+        },
+        popupmenu = {
+          relative = "editor",
+          position = {
+            row = 8,
+            col = "50%",
+          },
+          size = {
+            width = 60,
+            height = 10,
+          },
+          border = {
+            style = "rounded",
+            padding = { 0, 1 },
+          },
+          win_options = {
+            winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
+          },
+        },
       },
     },
     dependencies = {
@@ -141,6 +180,93 @@ return {
       --   `nvim-notify` is only needed, if you want to use the notification view.
       --   If not available, we use `mini` as the fallback
       "rcarriga/nvim-notify",
+    },
+  },
+  {
+    {
+      "goolord/alpha-nvim",
+      -- dependencies = { 'echasnovski/mini.icons' },
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      config = function()
+        local alpha = require("alpha")
+        local dashboard = require("alpha.themes.dashboard")
+
+        dashboard.section.header.val = {
+          "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡍⡻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿",
+          "⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿",
+          "⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣻⣽⡶⣛⣯⣴⣷⣞⢷⣶⣯⣟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿",
+          "⣿⣿⣿⣿⡿⢿⡟⠛⣫⣾⡿⣿⣿⣿⣿⣿⣿⣿⣷⡝⣿⣿⣷⣎⢛⠛⣻⠿⣿⣿⣿⣿⣿",
+          "⣿⣿⣏⣾⣿⠏⠀⣼⣿⡟⣼⡇⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣷⡡⠙⢿⣷⢸⣿⣿⣿",
+          "⣿⣿⣿⡸⠟⢀⣾⣿⡿⢼⣿⠷⣿⣿⣿⣿⡏⢿⣿⣿⣿⣿⡝⣏⣿⣿⡅⠘⡏⣿⣿⣿⣿",
+          "⣿⣿⣿⣷⠀⣾⢧⣿⢳⢸⣿⢀⣇⣿⣿⣿⣷⢪⢻⣿⣯⢿⣷⣿⡼⣿⣿⣁⣸⣿⣿⣿⣿",
+          "⣿⣿⣿⣿⣸⢸⣼⡟⣿⣉⢿⢸⡼⣞⢿⣿⣿⣞⣷⡽⢿⡾⣿⢾⣇⣿⢹⣧⢿⣿⣿⣿⣿",
+          "⣿⣿⣿⣇⣿⡇⣿⣧⢣⣿⠮⡋⠿⣮⣐⢽⣻⠿⠜⡿⠷⡅⢣⡜⣿⢹⢸⣿⡜⣿⣿⣿⣿",
+          "⣿⣿⣿⣸⣿⡇⣿⢨⠏⢀⢄⣀⢌⢺⣿⣿⣿⣿⣷⢊⣀⣀⢄⠈⢞⢸⢸⣿⡇⠸⣿⣿⣿",
+          "⣿⣿⡏⣿⣿⢹⢻⠘⢰⣇⡟⡍⡇⣾⣿⣿⣿⣿⣯⡦⡏⣽⡞⣧⠸⢸⣼⣿⣿⡆⢻⣿⣿",
+          "⣿⣿⣠⣿⣿⡏⡾⢸⣸⣏⠿⡾⢣⣿⣿⣿⣿⣿⣿⣧⠿⠾⣳⣿⣼⣏⣿⣿⣿⣷⣏⣿⣿",
+          "⣿⢧⣿⣿⣿⣿⡵⠛⣿⣿⣛⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣛⣻⣿⡇⣼⣿⣿⣿⣿⣿⣼⣿",
+          "⡟⣾⡿⣿⣿⣿⣷⡀⢿⣿⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⣿⣿⣿⡿⣰⣿⣿⣿⣿⣿⣿⣇⣿",
+          "⣧⣇⣧⢿⣿⣿⣿⣿⡜⣿⣿⣿⣿⣿⣿⣾⣿⣼⣿⣿⣿⣿⡿⣱⣿⣿⣿⣿⣿⡟⣿⣿⢸",
+          "⣿⣸⡹⡼⣿⣿⣿⣿⣿⢰⡍⡛⡿⢿⣿⣿⣿⣿⣿⡿⠟⣻⢥⣿⣿⣿⣿⣿⣿⠁⣿⣿⣿",
+          "⡏⣷⡳⡱⡹⣿⣿⣿⣿⣾⠳⣹⢏⢾⣶⣶⣿⣶⣾⢎⢧⢃⣸⣿⣿⣿⣿⡿⡓⣼⡟⣿⢹",
+          "⣿⡝⣿⣮⡊⠘⢿⣿⣿⢀⣌⣽⣶⣿⣿⣿⣿⣿⣿⣿⣾⡅⢿⣿⣿⡿⡟⠑⣼⡿⣹⢏⣿",
+          "⣿⣿⣮⣻⠿⣦⢒⣝⡿⢿⣿⣾⣻⠿⠿⣿⡿⠿⠿⠿⢟⣽⡼⢿⣫⣎⢡⡾⣻⠾⣫⣾⣿",
+          "⣿⣿⣿⣿⣿⡟⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⣶⣾⣿⣿⣿⣿",
+        }
+
+        dashboard.section.buttons.val = {
+          dashboard.button("n", "󰱼  New File", "<CMD>ene <BAR> startinsert<CR>"),
+          dashboard.button("f", "  Find File", "<CMD>Telescope find_files<CR>"),
+          dashboard.button("r", "󰘁  Recently used files", "<CMD>Telescope oldfiles<CR>"),
+          dashboard.button("t", "  Find Text", "<CMD>Telescope live_grep<CR>"),
+          dashboard.button(
+            "c",
+            "  Configuration",
+            "<CMD>cd ~/.config/nvim<CR><CMD>e ~/.config/nvim/lua/vins/lazy.lua<CR>"
+          ),
+          dashboard.button("q", "󰩈  Quit Neovim", "<CMD>qa<CR>"),
+        }
+
+        dashboard.section.footer.val = "Don't stop, keep coding until die..."
+
+        dashboard.section.footer.opts.hl = "Type"
+        dashboard.section.header.opts.hl = "Include"
+        dashboard.section.buttons.opts.hl = "Keyword"
+        dashboard.section.buttons.opts.spacing = 1
+
+        dashboard.opts.opts.noautocmd = true
+
+        if vim.o.filetype == "lazy" then
+          vim.cmd.close()
+          vim.api.nvim_create_autocmd("User", {
+            once = true,
+            pattern = "AlphaReady",
+            callback = function()
+              require("lazy").show()
+            end,
+          })
+        end
+
+        require("alpha").setup(dashboard.opts)
+
+        vim.api.nvim_create_autocmd("User", {
+          once = true,
+          pattern = "LazyVimStarted",
+          callback = function()
+            local stats = require("lazy").stats()
+            local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+            dashboard.section.footer.val = dashboard.section.footer.val
+              .. "\n⚡ Neovim loaded "
+              .. stats.loaded
+              .. "/"
+              .. stats.count
+              .. " plugins in "
+              .. ms
+              .. "ms"
+            pcall(vim.cmd.AlphaRedraw)
+          end,
+        })
+      end,
     },
   },
 }

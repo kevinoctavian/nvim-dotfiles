@@ -2,24 +2,45 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = {
-      "nvim-tree/nvim-web-devicons"
+      "nvim-tree/nvim-web-devicons",
     },
-    config = function ()
+    init = function()
       vim.g.loaded_netrw = 1
       vim.g.loaded_netrwPlugin = 1
-
-      vim.keymap.set("n", "<leader>e", "<CMD>NvimTreeToggle<CR>", { desc = "Toggling tree folder" })
-
-      require("nvim-tree").setup({
-        hijack_cursor = true,
-        view = {
-          side = "right",
-        }
-      })
-    end
+    end,
+    opts = {
+      hijack_cursor = true,
+      sync_root_with_cwd = true,
+      sort = {
+        sorter = "case_sensitive",
+      },
+      view = {
+        preserve_window_proportions = true,
+        side = "right",
+      },
+      actions = {
+        open_file = {
+          quit_on_open = true,
+        },
+      },
+      renderer = {
+        hidden_display = "all",
+      },
+      tab = {
+        sync = {
+          open = true,
+        },
+      },
+      filters = {
+        dotfiles = true,
+      },
+    },
+    keys = {
+      { "<leader>e", "<CMD>NvimTreeToggle<CR>", desc = "Toggling tree folder" },
+    },
   },
   {
-    'nvim-treesitter/nvim-treesitter',
+    "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     event = "VeryLazy",
     lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
@@ -80,9 +101,9 @@ return {
     },
     ---@param opts TSConfig
     config = function(_, opts)
-      if type(opts.ensure_installed) == "table" then
-        -- opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
-      end
+      -- if type(opts.ensure_installed) == "table" then
+      -- opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
+      -- end
       require("nvim-treesitter.configs").setup(opts)
     end,
   },
@@ -91,10 +112,11 @@ return {
     opts = {},
   },
   {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
+    "nvim-telescope/telescope.nvim",
+    branch = "0.1.x",
+    cmd = "Telescope",
     dependencies = {
-      'nvim-lua/plenary.nvim',
+      "nvim-lua/plenary.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
       "nvim-tree/nvim-web-devicons",
     },
@@ -108,6 +130,8 @@ return {
     config = function()
       local telescope = require("telescope")
       local actions = require("telescope.actions")
+
+      telescope.load_extension("fzf")
 
       telescope.setup({
         defaults = {
@@ -129,8 +153,6 @@ return {
           },
         },
       })
-
-      telescope.load_extension("fzf")
     end,
   },
   {
@@ -148,6 +170,20 @@ return {
           require("which-key").show({ global = false })
         end,
         desc = "Buffer Local Keymaps (which-key)",
+      },
+    },
+  },
+  {
+    "numToStr/FTerm.nvim",
+    opts = {},
+    keys = {
+      {
+        "<A-t>",
+        function()
+          require("FTerm").toggle()
+        end,
+        desc = "Toggleing floating terminal",
+        mode = { "n", "t" },
       },
     },
   },

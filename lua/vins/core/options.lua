@@ -1,7 +1,5 @@
 local opt = vim.opt
 
-local opt = vim.opt
-
 opt.number = true
 opt.relativenumber = true
 
@@ -41,6 +39,6 @@ opt.updatetime = 50
 opt.timeoutlen = 500
 
 opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#folexpr()"
+opt.foldexpr = "nvim_treesitter#foldexpr()"
 
 vim.wo.foldlevel = 99
